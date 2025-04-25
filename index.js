@@ -1,24 +1,14 @@
 import {
-    initScreenshotTracker,
     onScreenshot,
     getScreenshotCount
 } from './src/screenshot.js';
 
 import {
-    initBlurTracker,
-    onFocusLost,
-    getFocusLostCount
+    createBlurTracker,
 } from './src/blur.js';
 
-function startTracking() {
-    initScreenshotTracker();
-    initBlurTracker();
-}
-
 export {
-    startTracking,
     onScreenshot,
-    onFocusLost,
     getScreenshotCount,
-    getFocusLostCount
+    createBlurTracker,
 };

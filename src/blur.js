@@ -1,27 +1,23 @@
-let focusLostCount = 0;
-let onFocusLostCallback = null;
+export function createBlurTracker(setFocusLostCount) {
+    let localCount = 0;
 
-function initBlurTracker() {
+    const handleBlur = () => {
+        localCount++;
+        if (setFocusLostCount) {
+            setFocusLostCount(localCount);
+        }
+    };
+
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'hidden') {
-            focusLostCount++;
-            if (typeof onFocusLostCallback === 'function') {
-                onFocusLostCallback(focusLostCount);
-            }
+            handleBlur();
         }
     });
-}
 
-function onFocusLost(callback) {
-    onFocusLostCallback = callback;
+    return {
+        getCount: () => localCount,
+        cleanup: () => {
+            document.removeEventListener('visibilitychange', handleBlur);
+        }
+    };
 }
-
-function getFocusLostCount() {
-    return focusLostCount;
-}
-
-export {
-    initBlurTracker,
-    onFocusLost,
-    getFocusLostCount
-};
