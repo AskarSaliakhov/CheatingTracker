@@ -1,6 +1,6 @@
 import { KEYS } from "./consts.js";
 
-export function createScreenTracker() {
+export function createScreenTracker(onEventUpdate) {
     const lastEvent = {
         title: '',
         time: null,
@@ -28,12 +28,13 @@ export function createScreenTracker() {
 
     function saveEvent(title) {
         const time = new Date().toLocaleTimeString();
-        events.push({
-            title,
-            time
-        });
+        const event = { title, time };
+        events.push(event);
         lastEvent.title = title;
         lastEvent.time = time;
+        if (onEventUpdate) {
+            onEventUpdate([...events]);
+        }
     }
 
     function checkIfPrintscreenPressed() {
@@ -42,17 +43,16 @@ export function createScreenTracker() {
         }
     }
 
-    window.addEventListener('keydown', event => {
+    const keydownHandler = (event) => {
+        console.log(event)
         handlePressKey(event);
-    });
-
-    window.addEventListener('keyup', event => {
+    }
+    const keyupHandler = (event) => {
         handlePressKey(event);
         checkIfPrintscreenPressed();
         handleDeleteKey(event.keyCode);
-    });
-
-    window.addEventListener('blur', () => {
+    };
+    const blurHandler = () => {
         if (alreadyClicked(KEYS.META) && alreadyClicked(KEYS.SHIFT)) {
             if (navigator.platform.indexOf('Mac') > -1) {
                 saveEvent('Command + Shift : macOS');
@@ -61,10 +61,20 @@ export function createScreenTracker() {
             }
         }
         pressedKeys = [];
-    });
+    };
+
+    window.addEventListener('keydown', keydownHandler);
+    window.addEventListener('keyup', keyupHandler);
+    window.addEventListener('blur', blurHandler);
 
     return {
         lastEvent: () => lastEvent,
         events: () => events,
+        cleanup: () => {
+            window.removeEventListener('keydown', keydownHandler);
+            window.removeEventListener('keyup', keyupHandler);
+            window.removeEventListener('blur', blurHandler);
+        },
     };
 }
+

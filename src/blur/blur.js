@@ -1,4 +1,4 @@
-export function createBlurTracker(setFocusLostCount) {
+export function createBlurTracker(setFocusLostCount = 0) {
     let localCount = 0;
 
     const handleBlur = () => {
