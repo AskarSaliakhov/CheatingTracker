@@ -1,14 +1,12 @@
 import {
-    onScreenshot,
-    getScreenshotCount
-} from './src/screenshot.js';
+    createScreenTracker,
+} from './src/screens/screenshot.js';
 
 import {
     createBlurTracker,
-} from './src/blur.js';
+} from './src/blur/blur.js';
 
 export {
-    onScreenshot,
-    getScreenshotCount,
+    createScreenTracker,
     createBlurTracker,
 };
