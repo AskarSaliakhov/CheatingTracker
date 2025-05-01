@@ -236,3 +236,70 @@ The returned array contains objects in the following format:
         { at: '02:23:50', durationMs: 1500 },
         { at: '03:15:42', durationMs: 1200 },
     ]
+
+___
+
+## EXAMPLES:
+
+## JavaScript Native
+
+```
+import { createAltTabTracker } from "./src/altTab/altTab.js";
+
+const btn = document.getElementById('btn');
+
+const tracker = createAltTabTracker();
+
+btn.addEventListener('click', () => {
+    console.log(tracker.events());
+    console.log(tracker.lastEvent());
+});
+```
+
+
+## React
+```
+import React, { useEffect, useState, useRef } from 'react';
+import { createAltTabTracker } from 'cheatingtracker';
+
+const AltTabLog = () => {
+    const [events, setEvents] = useState([]);
+    const [lastEvent, setLastEvent] = useState(null);
+    const trackerRef = useRef(null);
+
+    useEffect(() => {
+        const tracker = createAltTabTracker(() => {
+            const all = tracker.events();
+            setEvents(all);
+            setLastEvent(tracker.lastEvent());
+        });
+
+        trackerRef.current = tracker;
+
+        return () => {
+            tracker.destroy();
+        };
+    }, []);
+
+    return (
+        <div>
+            <h3>Alt+Tab events:</h3>
+            <ul>
+                {events.map((e, idx) => (
+                    <li key={idx}>
+                        {e.at} ({e.durationMs} мс)
+                    </li>
+                ))}
+            </ul>
+
+            <h4>Last Event:</h4>
+            {lastEvent && (
+                <p>{lastEvent.at} ({lastEvent.durationMs} мс)</p>
+            )}
+        </div>
+    );
+};
+
+export default AltTabLog;
+
+```
