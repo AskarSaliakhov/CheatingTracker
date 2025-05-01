@@ -154,3 +154,85 @@ btn.addEventListener('click', () => {
 ```
 
 ___
+
+## Alt + Tab
+
+**createAltTabTracker** - Determines whether the Alt+Tab key combination or a similar focus switch was performed in combination with the pressed Alt. It also records what time it happened and how long the user was absent from the page.
+- events: returns array all pressed `alt` + `tab`
+- lastEvent: returns trying last `alt` + `tab`
+
+
+```
+type Nullable<T> = T | null;
+
+interface IAltTabEvent {
+  at: string;             
+  durationMs: Nullable<number>;
+}
+
+{
+  lastEvent: () => IAltTabEvent;
+  events: () => IAltTabEvent[];
+  destroy: () => void;
+}
+
+```
+
+_Returns:_
+
+## lastEvent
+`lastEvent`: () => `IAltTabEvent`;
+
+This method returns an object with the last Alt+Tab event (or a similar focus switch) fixed during operation.
+
+The returned object has the following contents:
+
+
+```
+{
+  at: string;             // example: "02:23:50".
+  durationMs: Nullable<number>; // duration: `1583`
+}
+```
+
+**at**: is the time when the event occurred. This time is in the hh:mm:ss format, for example: 02:23:50.
+
+**durationMs** – length of time during which there was no focus on the page (in milliseconds). If focus has been restored, the value will be specified, if not, it will be null.
+
+**examples:**
+```
+{
+  at: '02:23:50',
+  durationMs: 1500
+}
+```
+
+or
+```
+{
+  at: '',
+  durationMs: null
+}
+```
+
+## Events:
+`events`: () => `IAltTabEvent[]`;
+
+This method returns an array of all Alt+Tab (or similar focus switches) that have been captured.
+
+The returned array contains objects in the following format:
+
+```
+{
+  at: string;             // example: "02:23:50".
+  durationMs: Nullable<number>; // duration: `1583`
+}
+```
+
+## Example of the returned array:
+
+
+    [
+        { at: '02:23:50', durationMs: 1500 },
+        { at: '03:15:42', durationMs: 1200 },
+    ]
