@@ -303,3 +303,117 @@ const AltTabLog = () => {
 export default AltTabLog;
 
 ```
+
+---
+## INACTIVITY
+
+**createInactivityTracker** - Creates and returns a tracker object that tracks the user's periods of inactivity on a web page. If the user is inactive for a set number of seconds and the page is active, information about inactivity is recorded in the console and an array of events, and then about the moment when they return to activity.
+
+__Returned methods__:
+
+`start()`
+Starts tracking. It attaches listeners to activity events and monitors the visibility of the page.
+
+`stop()`
+Stops tracking. Deletes all listeners and clears the timer.
+
+`getEvents()`
+Returns an array of all recorded events of inactivity and return to activity.
+
+### The structure of the event in the array:
+
+```
+{
+  type: 'inactivity',                         
+  time: '03:05:23',                           
+  message: 'Пользователь был бездействующим 5 секунд', 
+  activityAfterSeconds: 7,                   
+  activityType: 'mousemove'                  
+}
+
+```
+ - `type`: Type of event
+ - `time`: The time when inactivity was recorded (local)
+ - `message`: message
+ - `activityAfterSeconds`: How many seconds after inactivity did the user become active
+ - `activityType`: Activity type: mousemove, keydown, etc.
+
+**Behaviour:**
+
+- Listens to the following activities: mousemove, keydown, mousedown, touchstart.
+
+- Counts only when the page is active 
+
+- Activity events are displayed in the console, but only if they occurred after a period of inactivity.
+
+- All events are saved to an array accessible via getEvents().
+
+**Notes:**
+
+- The tracker's default value is 60 seconds
+- Each period of inactivity is recorded once, and only after it is the moment of the next activity monitored.
+- Time is saved in a readable format: HH:MM:CC in local time.
+
+
+## EXAMPLES:
+
+- **JavaScript Native**
+
+```
+import { createInactivityTracker } from "./src/inactivity/inactivity.js";
+
+    const tracker = createInactivityTracker(30 );
+    tracker.start();
+
+    const start = document.getElementById('start')
+    const end = document.getElementById('end')
+    
+    start.addEventListener('click', () => {
+        console.log(tracker.events())
+    })
+    
+    end.addEventListener('click', () => {
+        tracker.stop();
+    })
+```
+- **React**
+
+```
+import React, { useEffect, useState } from 'react';
+import { createInactivityTracker } from 'cheatingtracker';
+
+export default function App() {
+    const [events, setEvents] = useState([]);
+
+    useEffect(() => {
+        const tracker = createInactivityTracker(5); // 5-second timeout
+        tracker.start();
+
+        return () => {
+            tracker.stop();
+            clearInterval(interval);
+        };
+    }, []);
+
+    return (
+        <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
+            <h1>🛑 Inactivity Tracker</h1>
+            <p>Try not moving your mouse or pressing keys for 5 seconds...</p>
+            <ul>
+                {events.map((event, index) => (
+                    <li key={index} style={{ marginBottom: '0.5rem' }}>
+                        <strong>{event.time}</strong> — {event.message}
+                        {event.activityAfterSeconds !== undefined && (
+                            <div>
+                                ↪ Activity: <em>{event.activityType}</em> after{' '}
+                                <strong>{event.activityAfterSeconds}</strong> sec.
+                            </div>
+                        )}
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
+}
+
+```
