@@ -396,12 +396,12 @@ export default function App() {
     }, []);
 
     return (
-        <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
+        <div>
             <h1>🛑 Inactivity Tracker</h1>
             <p>Try not moving your mouse or pressing keys for 5 seconds...</p>
             <ul>
                 {events.map((event, index) => (
-                    <li key={index} style={{ marginBottom: '0.5rem' }}>
+                    <li key={index}>
                         <strong>{event.time}</strong> — {event.message}
                         {event.activityAfterSeconds !== undefined && (
                             <div>
@@ -415,5 +415,130 @@ export default function App() {
         </div>
     );
 }
+
+```
+___
+
+## Copy:
+
+**createInactivityTracker** - Creates and returns a tracker object that listens to the user's copy actions on the page.
+
+__Returned methods__:
+
+`start()`
+Starts tracking. It attaches listeners to activity events and monitors the copy of the page.
+
+`stop()`
+Stops tracking. Deletes all listeners and clears the timer.
+
+`getEvents()`
+Returns an array of all recorded events of copy and return to activity.
+
+
+### The structure of the event in the array:
+
+```
+{
+  type: 'question' | 'answer',
+  copiedText: string,
+  time: '13:42:08' // (local time, formatted as HH:MM:SS)
+}
+```
+
+- `type`: What was copied — either a question or an answer option
+- `copiedText`: The actual string that was copied by the user
+- `time`: '13:42:08' // (local time, formatted as HH:MM:SS)
+
+**Behaviour:**
+- Tracks only content defined in the questions array (including options)
+- Listens globally on the document for copy events
+- Compares copied text against the questions and options
+- Invokes onCopyEvent with event data whenever a match is detected
+
+
+## EXAMPLES:
+
+- **REACT**
+
+```
+import React, { useEffect, useState } from 'react';
+import { createQuestionCopyTracker } from 'cheatingtracker';
+
+const questions = [
+    {
+        question: 'What is the color of the sky?',
+        options: ['a. Blue', 'b. Green', 'c. Red', 'd. Black'],
+    },
+    {
+        question: 'How many legs does a spider have?',
+        options: ['a. 4', 'b. 6', 'c. 8', 'd. 10'],
+    },
+];
+
+const QuestionPage = () => {
+    const [showLogs, setShowLogs] = useState(false);
+    const [logs, setLogs] = useState([]);
+
+    useEffect(() => {
+        const tracker = createQuestionCopyTracker(questions, (newEvent) => {
+            setLogs(prevLogs => [...prevLogs, newEvent]);
+        });
+
+        tracker.start();
+
+        return () => {
+            tracker.stop();
+        };
+    }, []);
+
+    const handleAnswerClick = () => {
+        setShowLogs(true);
+    };
+
+    const handleLogClick = () => {
+        console.log(logs);
+    };
+
+    return (
+        <div>
+            <h1>Online Quiz</h1>
+
+            {questions.map((q, index) => (
+                <div key={index}>
+                    <p><strong>{index + 1}. {q.question}</strong></p>
+                    {q.options.map((opt, i) => (
+                        <div key={i}>
+                            <label>
+                                <input type="checkbox" /> {opt}
+                            </label>
+                        </div>
+                    ))}
+                </div>
+            ))}
+
+            <button onClick={handleAnswerClick}>Answer</button>
+            <button onClick={handleLogClick}>Log</button>
+
+            {showLogs && (
+                <div>
+                    <h2>Copy Logs:</h2>
+                    <pre>
+                        {logs.length > 0 ? (
+                            logs.map((log, idx) => (
+                                <div key={idx}>
+                                    {log.time} — {log.type === 'question' ? 'Question: ' : 'Answer: '} {log.copiedText}
+                                </div>
+                            ))
+                        ) : (
+                            <p>No logs</p>
+                        )}
+                    </pre>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default QuestionPage;
 
 ```
