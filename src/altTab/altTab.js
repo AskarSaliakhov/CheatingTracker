@@ -7,7 +7,6 @@ function formatTime(date) {
 export function createAltTabTracker(onAltTabDetected = () => {}) {
     let isAltPressed = false;
     let altPressedAt = 0;
-    let isWaitingForFocus = false;
     let hiddenStartedAt = 0;
 
     const events = [];
@@ -32,7 +31,6 @@ export function createAltTabTracker(onAltTabDetected = () => {}) {
         if (document.visibilityState === "hidden" && isAltPressed) {
             const timeSinceAlt = now - altPressedAt;
             if (timeSinceAlt > 1) {
-                isWaitingForFocus = true;
                 hiddenStartedAt = now;
 
                 lastEvent = {
@@ -43,23 +41,20 @@ export function createAltTabTracker(onAltTabDetected = () => {}) {
                 onAltTabDetected();
             }
         } else if (document.visibilityState === "visible") {
-            isAltPressed = false;
-            isWaitingForFocus = false;
-
-            const visibleAt = Date.now();
-            const duration = visibleAt - hiddenStartedAt;
+            const duration = now - hiddenStartedAt;
 
             if (lastEvent && lastEvent.durationMs === null) {
                 lastEvent.durationMs = duration;
                 events.push({ ...lastEvent });
             }
+
+            isAltPressed = false;
         }
     }
 
-
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
-    document.addEventListener("blur", handleVisibilityChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return {
         destroy: () => {
