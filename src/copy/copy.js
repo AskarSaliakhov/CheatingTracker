@@ -1,6 +1,7 @@
 export const createQuestionCopyTracker = (questions, onCopyLogged) => {
     let isTracking = false;
     const events = [];
+    let lastSelectedText = '';
 
     function getTimeString() {
         return new Date().toLocaleTimeString('ru-RU', {
@@ -27,7 +28,7 @@ export const createQuestionCopyTracker = (questions, onCopyLogged) => {
     }
 
     function trackCopy() {
-        const copiedText = window.getSelection().toString();
+        const copiedText = lastSelectedText || '';
         if (copiedText) {
             questions.forEach((q) => {
                 if (q.question.includes(copiedText)) {
@@ -39,33 +40,29 @@ export const createQuestionCopyTracker = (questions, onCopyLogged) => {
         }
     }
 
-    function addCopyListeners() {
-        document.addEventListener('copy', trackCopy);
-        document.addEventListener('keydown', (event) => {
-            if ((event.ctrlKey || event.metaKey) && event.key === 'c') {
-                trackCopy(event);
-            }
+    function addListeners() {
+        document.addEventListener('selectionchange', () => {
+            const selection = window.getSelection();
+            lastSelectedText = selection ? selection.toString() : '';
         });
+
+        document.addEventListener('copy', trackCopy);
     }
 
-    function removeCopyListeners() {
+    function removeListeners() {
         document.removeEventListener('copy', trackCopy);
-        document.removeEventListener('keydown', trackCopy);
+        document.removeEventListener('selectionchange', () => {});
     }
 
     function startTracking() {
-        if (isTracking) {
-            return;
-        }
-        addCopyListeners();
+        if (isTracking) return;
+        addListeners();
         isTracking = true;
     }
 
     function stopTracking() {
-        if (!isTracking) {
-            return;
-        }
-        removeCopyListeners();
+        if (!isTracking) return;
+        removeListeners();
         isTracking = false;
     }
 
