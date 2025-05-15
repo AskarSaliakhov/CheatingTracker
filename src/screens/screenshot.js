@@ -44,7 +44,6 @@ export function createScreenTracker(onEventUpdate) {
     }
 
     const keydownHandler = (event) => {
-        console.log(event)
         handlePressKey(event);
     }
     const keyupHandler = (event) => {
