@@ -1,6 +1,6 @@
 {
   "name": "cheatingtracker",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "description": "",
   "main": "index.js",
   "type": "module",
@@ -20,7 +20,4 @@
   ],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "cheatingtracker": "^1.1.0"
-  }
 }
