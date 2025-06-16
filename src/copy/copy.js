@@ -1,3 +1,18 @@
+/**
+ * Создаёт трекер для отслеживания копирования текста вопросов и ответов.
+ *
+ * @param {Array<{question: string, options: string[]}>} questions - Массив вопросов с вариантами ответов.
+ * @param onCopyLogged
+ * [onCopyLogged] - Колбэк, вызываемый при каждом событии копирования.
+ *
+ * @returns {{
+ *   start: () => void,
+ *   stop: () => void,
+ *   events: () => Array<{ type: string, at: string, copiedText: string }>
+ * }} Объект с методами для управления трекингом и получения истории событий.
+ */
+
+
 export const createQuestionCopyTracker = (questions, onCopyLogged) => {
     let isTracking = false;
     const events = [];
@@ -13,10 +28,10 @@ export const createQuestionCopyTracker = (questions, onCopyLogged) => {
     }
 
     function logCopyEvent(copiedText, type) {
-        const time = getTimeString();
+        const at = getTimeString();
         const eventObj = {
             type,
-            time,
+            at,
             copiedText,
         };
 
@@ -76,3 +91,4 @@ export const createQuestionCopyTracker = (questions, onCopyLogged) => {
         events: getEvents,
     };
 };
+

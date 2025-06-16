@@ -20,7 +20,6 @@ export function createInactivityTracker(timeoutInSeconds = 60) {
     function logInactivity() {
         const time = getTimeString();
         const eventObj = {
-            type: 'inactivity',
             time,
             message: `inactivity: ${timeoutInSeconds} seconds`,
         };
@@ -100,5 +99,6 @@ export function createInactivityTracker(timeoutInSeconds = 60) {
         start: startTracking,
         stop: stopTracking,
         events: getEvents,
+        lastEvent: events[events.length - 1] || null,
     };
 }
